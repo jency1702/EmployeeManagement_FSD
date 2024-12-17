@@ -1,0 +1,121 @@
+:root {
+  --light-blue: #f0f3fa;
+  --soft-blue: #d5deef;
+  --lightest-blue: #b1c9ef;
+  --medium-blue: #8aaee0;
+  --dark-blue: #638ecb;
+  --deep-blue: #395886;
+}
+
+body {
+  background-color: var(--light-blue);
+  font-family: Arial, sans-serif;
+  color: var(--deep-blue);
+  margin: 0;
+  padding: 0;
+}
+
+.employee-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px;
+}
+
+.employee-form {
+  flex: 1;
+  background-color: var(--soft-blue);
+  padding: 20px;
+  border: 1px solid var(--medium-blue);
+  border-radius: 8px;
+}
+
+.employee-form h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--deep-blue);
+}
+
+.employee-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: var(--deep-blue);
+}
+
+.employee-form input,
+.employee-form select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 12px;
+  border: 1px solid var(--medium-blue);
+  border-radius: 5px;
+}
+
+.employee-form .error {
+  color: red;
+  font-size: 12px;
+}
+
+.employee-form .message {
+  text-align: center;
+  font-size: 14px;
+  margin-bottom: 10px;
+  color: var(--deep-blue);
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.form-buttons button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: var(--dark-blue);
+  color: white;
+  font-weight: bold;
+}
+
+.form-buttons button[type="button"] {
+  background-color: #dc3545;
+}
+
+.employee-list {
+  flex: 2;
+  padding: 20px;
+  background-color: var(--lightest-blue);
+  border-radius: 8px;
+}
+
+.employee-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.employee-table th,
+.employee-table td {
+  border: 1px solid;
+  padding: 8px;
+}
+
+.employee-table th {
+  background-color: var(--soft-blue);
+  text-align: left;
+  color: var(--deep-blue);
+}
+
+.employee-table tr:nth-child(even) {
+  background-color: var(--lightest-blue);
+}
+
+.employee-table tr:hover {
+  background-color: white;
+  color: white;
+}
+
+.employee-table td {
+  color: var(--deep-blue);
+}
