@@ -112,7 +112,7 @@ const EmployeeForm = () => {
         if (selectedEmployeeId) {
           // Update employee
           response = await axios.put(
-            `http://localhost:5000/api/employees/${selectedEmployeeId}`,
+            `https://employeemanagement-fsd-task.onrender.com/${selectedEmployeeId}`,
             formData
           );
 
