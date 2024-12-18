@@ -67,10 +67,11 @@ const EmployeeForm = () => {
       formErrors.employeeId =
         "Employee ID is required, must be alphanumeric, and cannot exceed 10 characters";
       valid = false;
-    } else if (existingEmployeeIds.includes(formData.employeeId)) {
-      formErrors.employeeId = "Employee ID must be unique";
-      valid = false;
     }
+    // else if (existingEmployeeIds.includes(formData.employeeId)) {
+    //   formErrors.employeeId = "Employee ID must be unique";
+    //   valid = false;
+    // }
 
     const emailRegex = /\S+@\S+\.\S+/;
     if (!emailRegex.test(formData.email)) {
