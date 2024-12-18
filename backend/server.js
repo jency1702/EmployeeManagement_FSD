@@ -131,11 +131,7 @@ const port = 5000;
 
 // Middleware to handle JSON requests
 app.use(express.json());
-app.use(
-  cors({
-    origin: "https://employee-management-fsd-dtbf.vercel.app/",
-  })
-);
+app.use(cors());
 
 // MySQL connection setup using environment variables
 const connection = mysql.createConnection({
@@ -163,7 +159,6 @@ app.get("/", (req, res) => {
 
     const modifiedResults = results.map((employee) => ({
       ...employee,
-      _id: employee.employeeId,
     }));
     res.json(modifiedResults);
   });
