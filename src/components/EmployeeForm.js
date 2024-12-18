@@ -37,7 +37,9 @@ const EmployeeForm = () => {
 
   const fetchEmployees = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/employees");
+      const response = await axios.get(
+        "https://employeemanagement-fsd-task.onrender.com/api/employees"
+      );
       setEmployees(response.data);
     } catch (error) {
       console.error("Error fetching employees", error);
