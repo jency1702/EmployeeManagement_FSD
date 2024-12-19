@@ -155,7 +155,7 @@ connection.connect((err) => {
 });
 
 // Endpoint to get all employees
-app.get("/", (req, res) => {
+app.get("/api/employees", (req, res) => {
   connection.query("SELECT * FROM employees", (err, results) => {
     if (err) {
       res.status(500).json({ error: err.message });
