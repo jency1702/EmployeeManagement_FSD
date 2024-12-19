@@ -374,9 +374,7 @@ const EmployeeForm = () => {
 
   const fetchEmployees = async () => {
     try {
-      const response = await axios.get(
-        "https://employeemanagement-fsd-task.onrender.com/api/employees"
-      );
+      const response = await axios.get("http://localhost:5000/api/employees");
       setEmployees(response.data);
     } catch (error) {
       console.error("Error fetching employees", error);
@@ -458,7 +456,7 @@ const EmployeeForm = () => {
           alert("Employee updated successfully!");
         } else {
           response = await axios.post(
-            "https://employeemanagement-fsd-task.onrender.com/api/employees",
+            "http://localhost:5000/api/employees",
             formData
           );
 
@@ -493,9 +491,7 @@ const EmployeeForm = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this employee?")) {
       try {
-        await axios.delete(
-          `https://employeemanagement-fsd-task.onrender.com/api/employees/${id}`
-        );
+        await axios.delete(`http://localhost:5000/api/employees/`);
         alert("Employee deleted successfully");
         setEmployees((prevEmployees) =>
           prevEmployees.filter((employee) => employee.employeeId !== id)
