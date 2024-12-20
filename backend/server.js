@@ -1,42 +1,49 @@
-// // server.js
-
-// // Import dependencies
-// const express = require("express");
-// const { createClient } = require("@supabase/supabase-js");
-// const cors = require("cors");
 // require("dotenv").config();
 
-// // Initialize the express app
+// const express = require("express");
+// const mysql = require("mysql2");
+// const cors = require("cors");
 // const app = express();
+// const port = 5000;
 
-// // Middleware setup
-// app.use(cors({ origin: "http://localhost:3000" })); // Adjust the frontend URL if necessary
-// app.use(express.json()); // To parse JSON request bodies
+// // Middleware to handle JSON requests
+// app.use(express.json());
+// app.use(cors());
 
-// // Initialize Supabase client with environment variables
-// const supabaseUrl = process.env.SUPABASE_URL;
-// const supabaseKey = process.env.SUPABASE_KEY;
-// const supabase = createClient(supabaseUrl, supabaseKey);
+// // MySQL connection setup using environment variables
+// const connection = mysql.createConnection({
+//   host: process.env.DB_HOST,
+//   user: process.env.DB_USER,
+//   password: process.env.DB_PASSWORD,
+//   database: process.env.DB_NAME,
+// });
+
+// connection.connect((err) => {
+//   if (err) {
+//     console.error("Error connecting to the database:", err.stack);
+//     return;
+//   }
+//   console.log("Connected to the database");
+// });
 
 // // Endpoint to get all employees
-// app.get("/api/employees", async (req, res) => {
-//   try {
-//     const { data, error } = await supabase.from("employees").select("*");
-
-//     if (error) {
-//       console.error("Error fetching employees:", error);
-//       return res.status(500).json({ error: error.message });
+// app.get("/api/employees", (req, res) => {
+//   connection.query("SELECT * FROM employees", (err, results) => {
+//     if (err) {
+//       res.status(500).json({ error: err.message });
+//       return;
 //     }
 
-//     res.json(data); // Respond with the data from the database
-//   } catch (err) {
-//     console.error("Error:", err);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
+//     const modifiedResults = results.map((employee) => ({
+//       ...employee,
+//       _id: employee.employeeId,
+//     }));
+//     res.json(modifiedResults);
+//   });
 // });
 
 // // Endpoint to add a new employee
-// app.post("/api/employees", async (req, res) => {
+// app.post("/api/employees", (req, res) => {
 //   const {
 //     name,
 //     employeeId,
@@ -47,9 +54,26 @@
 //     role,
 //   } = req.body;
 
+//   connection.query(
+//     "INSERT INTO employees (name, employeeId, email, phoneNumber, department, dateOfJoining, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
+//     [name, employeeId, email, phoneNumber, department, dateOfJoining, role],
+//     (err, result) => {
+//       if (err) {
+//         res.status(500).json({ error: err.message });
+//         return;
+//       }
+//       res.json({ message: "Employee added successfully", id: result.insertId });
+//     }
+//   );
+// });
+
+// app.put("/api/employees/:id", (req, res) => {
+//   const employeeId = req.params.id;
+//   const { name, email, phoneNumber, department, dateOfJoining, role } =
+//     req.body;
+
 //   if (
 //     !name ||
-//     !employeeId ||
 //     !email ||
 //     !phoneNumber ||
 //     !department ||
@@ -59,106 +83,60 @@
 //     return res.status(400).json({ error: "All fields are required" });
 //   }
 
-//   try {
-//     const { data, error } = await supabase
-//       .from("employees")
-//       .insert([
-//         {
-//           name,
-//           employeeId,
-//           email,
-//           phoneNumber,
-//           department,
-//           dateOfJoining,
-//           role,
-//         },
-//       ]);
+//   connection.query(
+//     "UPDATE employees SET name = ?, email = ?, phoneNumber = ?, department = ?, dateOfJoining = ?, role = ? WHERE employeeId = ?",
+//     [name, email, phoneNumber, department, dateOfJoining, role, employeeId],
+//     (err, result) => {
+//       if (err) {
+//         res.status(500).json({ error: err.message });
+//         return;
+//       }
 
-//     if (error) {
-//       console.error("Error adding employee:", error);
-//       return res.status(500).json({ error: error.message });
+//       if (result.affectedRows === 0) {
+//         res.status(404).json({ message: "Employee not found" });
+//       } else {
+//         res.json({ message: "Employee updated successfully" });
+//       }
 //     }
-
-//     res
-//       .status(201)
-//       .json({ message: "Employee added successfully", data: data[0] });
-//   } catch (err) {
-//     console.error("Error:", err);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
+//   );
 // });
 
-// // Endpoint to update an existing employee's data
-// app.put("/api/employees/:id", async (req, res) => {
-//   const { id } = req.params;
-//   const { name, email, phoneNumber, department, dateOfJoining, role } =
-//     req.body;
+// app.delete("/api/employees/:id", (req, res) => {
+//   const employeeId = req.params.id;
 
-//   try {
-//     const { data, error } = await supabase
-//       .from("employees")
-//       .update({ name, email, phoneNumber, department, dateOfJoining, role })
-//       .eq("id", id);
-
-//     if (error) {
-//       console.error("Error updating employee:", error);
-//       return res.status(500).json({ error: error.message });
+//   connection.query(
+//     "DELETE FROM employees WHERE employeeId = ?",
+//     [employeeId],
+//     (err, result) => {
+//       if (err) {
+//         res.status(500).json({ error: err.message });
+//         return;
+//       }
+//       if (result.affectedRows === 0) {
+//         res.status(404).json({ message: "Employee not found" });
+//       } else {
+//         res.json({ message: "Employee deleted successfully" });
+//       }
 //     }
-
-//     if (data.length === 0) {
-//       return res.status(404).json({ error: "Employee not found" });
-//     }
-
-//     res.json({ message: "Employee updated successfully", data: data[0] });
-//   } catch (err) {
-//     console.error("Error:", err);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// });
-
-// // Endpoint to delete an employee
-// app.delete("/api/employees/:id", async (req, res) => {
-//   const { id } = req.params;
-
-//   try {
-//     const { data, error } = await supabase
-//       .from("employees")
-//       .delete()
-//       .eq("id", id);
-
-//     if (error) {
-//       console.error("Error deleting employee:", error);
-//       return res.status(500).json({ error: error.message });
-//     }
-
-//     if (data.length === 0) {
-//       return res.status(404).json({ error: "Employee not found" });
-//     }
-
-//     res.json({ message: "Employee deleted successfully" });
-//   } catch (err) {
-//     console.error("Error:", err);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
+//   );
 // });
 
 // // Start the server
-// const PORT = process.env.PORT || 5000;
-// app.listen(PORT, () => {
-//   console.log(`Server running on port ${PORT}`);
+// app.listen(port, () => {
+//   console.log(`Backend server running on http://localhost:${port}`);
 // });
 
-require("dotenv").config();
+require("dotenv").config(); // Loads environment variables from a .env file
 
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
 const app = express();
-const port = 5000;
+const port = 5000; // Define the port
 
 // Middleware to handle JSON requests
 app.use(express.json());
-app.use(cors());
+app.use(cors()); // Enable CORS for cross-origin requests
 
 // MySQL connection setup using environment variables
 const connection = mysql.createConnection({
@@ -168,6 +146,7 @@ const connection = mysql.createConnection({
   database: process.env.DB_NAME,
 });
 
+// Connect to MySQL database
 connection.connect((err) => {
   if (err) {
     console.error("Error connecting to the database:", err.stack);
@@ -184,10 +163,12 @@ app.get("/api/employees", (req, res) => {
       return;
     }
 
+    // Add `_id` for MongoDB-like behavior
     const modifiedResults = results.map((employee) => ({
       ...employee,
-      _id: employee.employeeId,
+      _id: employee.employee_id, // Mapping employee_id to _id
     }));
+
     res.json(modifiedResults);
   });
 });
@@ -196,17 +177,16 @@ app.get("/api/employees", (req, res) => {
 app.post("/api/employees", (req, res) => {
   const {
     name,
-    employeeId,
     email,
-    phoneNumber,
+    phone_number, // These keys should match your table's schema
     department,
-    dateOfJoining,
+    date_of_joining,
     role,
   } = req.body;
 
   connection.query(
-    "INSERT INTO employees (name, employeeId, email, phoneNumber, department, dateOfJoining, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
-    [name, employeeId, email, phoneNumber, department, dateOfJoining, role],
+    "INSERT INTO employees (name, email, phone_number, department, date_of_joining, role) VALUES (?, ?, ?, ?, ?, ?)",
+    [name, email, phone_number, department, date_of_joining, role],
     (err, result) => {
       if (err) {
         res.status(500).json({ error: err.message });
@@ -217,25 +197,26 @@ app.post("/api/employees", (req, res) => {
   );
 });
 
+// Endpoint to update an employee
 app.put("/api/employees/:id", (req, res) => {
   const employeeId = req.params.id;
-  const { name, email, phoneNumber, department, dateOfJoining, role } =
+  const { name, email, phone_number, department, date_of_joining, role } =
     req.body;
 
   if (
     !name ||
     !email ||
-    !phoneNumber ||
+    !phone_number ||
     !department ||
-    !dateOfJoining ||
+    !date_of_joining ||
     !role
   ) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
   connection.query(
-    "UPDATE employees SET name = ?, email = ?, phoneNumber = ?, department = ?, dateOfJoining = ?, role = ? WHERE employeeId = ?",
-    [name, email, phoneNumber, department, dateOfJoining, role, employeeId],
+    "UPDATE employees SET name = ?, email = ?, phone_number = ?, department = ?, date_of_joining = ?, role = ? WHERE employee_id = ?",
+    [name, email, phone_number, department, date_of_joining, role, employeeId],
     (err, result) => {
       if (err) {
         res.status(500).json({ error: err.message });
@@ -251,17 +232,19 @@ app.put("/api/employees/:id", (req, res) => {
   );
 });
 
+// Endpoint to delete an employee
 app.delete("/api/employees/:id", (req, res) => {
   const employeeId = req.params.id;
 
   connection.query(
-    "DELETE FROM employees WHERE employeeId = ?",
+    "DELETE FROM employees WHERE employee_id = ?",
     [employeeId],
     (err, result) => {
       if (err) {
         res.status(500).json({ error: err.message });
         return;
       }
+
       if (result.affectedRows === 0) {
         res.status(404).json({ message: "Employee not found" });
       } else {
@@ -271,7 +254,7 @@ app.delete("/api/employees/:id", (req, res) => {
   );
 });
 
-// Start the server
+// Start the server and listen on port 5000
 app.listen(port, () => {
   console.log(`Backend server running on http://localhost:${port}`);
 });
